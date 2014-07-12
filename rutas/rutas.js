@@ -1,3 +1,5 @@
+var modelos = require("../modelos/modelos.js");
+
 /*module.exports = DEFINIR UN MODULO*/
 module.exports.CONSTANTE1 = "valor1";
 
@@ -12,40 +14,46 @@ module.exports.configurar = function(app) {
 		});
 	}
 
+	//    /blog?limite=2&offset=3
 	function mostrarBlog(request, response, nombreVista) {
+		var criteriosBusqueda = {};
+		// params = para rutas dinamicas
+		// body = para datos que vienen en el post de una forma
+		// query = para datos que vienen en el query string
+		var limite = request.query.limite;
+		var offset = request.query.offset;
+		if ( typeof limite !== "undefined") {
+			//si el query string limite trae datos
+			//se los pegamos a los criterios de busqueda
+			criteriosBusqueda.limit = limite;
+		}
+		if ( typeof offset !== "undefined") {
+			//si viene en el query string el parametro offset,
+			//lo agregamos a los criterios de busqueda
+			criteriosBusqueda.offset = offset;
+		}
+		// con el metodo modelos.Articulo.count().success
+		// QUE HABRIA QUE AGREGAR EN LA VISTA?
+		// Y AQUI EN CONTROLADOR PARA HACER POSIBLE LOS LINKS
+		//DE SIGUIENTE Y ATRAS???
 
 		//AQUI SUPUESTAMENTE YA CONSULTAMOS UNA BASE DE DATOS
 		//OBTENEMOS UN ARREGLO DE RESULTADOS
-		var articulos = [{
-			id : 1,
-			titulo : "articulo 1",
-			contenido : "contenido 1"
-		}, {
-			id : 2,
-			titulo : "articulo 2",
-			contenido : "contenido 2"
-		}, {
-			id : 3,
-			titulo : "articulo 3",
-			contenido : "contenido 3"
-		}];
+		modelos.Articulo.findAll(criteriosBusqueda).success(function(articulos) {
+			//cuando USAN findAll, el metodo les regresa
+			//UN ARREGLO DE JAVASCRIPT
+			//articulos= [];
+			modelos.Categoria.findAll().success(function(categorias) {
 
-		var categorias = [{
-			nombre : "categoria 1"
-		}, {
-			nombre : "categoria 2"
-		}, {
-			nombre : "categoria 3"
-		}];
-
-		//articulos= [];
-
-		response.render(nombreVista, {
-			//ASIGNAMOS LA VARIABLE ARTICULOS a articulos
-			articulos : articulos,
-			categorias : categorias
+				response.render(nombreVista, {
+					//ASIGNAMOS LA VARIABLE ARTICULOS a articulos
+					articulos : articulos,
+					categorias : categorias
+				});
+			});
 		});
 	}
+
 
 	app.get("/", function(request, response) {
 		mostrarInicio(request, response, "index.html");
@@ -100,9 +108,74 @@ module.exports.configurar = function(app) {
 		response.send(mensaje);
 
 	});
-	
-	app.get("/chat",function(request, response){
+
+	app.get("/chat", function(request, response) {
 		response.render("chat.html");
 	});
 
-};
+	//blog/1
+	//blog/2
+	app.get("/blog/:articuloId([0-9]+)", function(request, response) {
+
+		var articuloId = request.params.articuloId;
+
+		console.log("buscando articulo con id:" + articuloId);
+
+		//find RECIBE COMO ARGUMENTO EL ID A BUSCAR USANDO
+		//LA LLAVE PRIMARIA TABLA
+		//================= LA CONSULTA SE HACE DE MANERA ASINCRONA =======
+		modelos.Articulo.find({
+			// SOLUCION EJERCICIO MAPEO 1-N
+			where : {
+				id : articuloId
+			},
+			include : [{
+				model : modelos.Comentario,
+				as : "comentarios"
+			},{
+				model:modelos.Categoria,
+				as:"categorias"
+			}]
+		}).success(function(articulo) {
+			//AQUI PONEMOS EL CODIGO A EJECUTAR
+			//CUANDO YA HIZO LA CONSULTA EN LA BASE
+
+			response.render("articulo.html", {
+				articulo : articulo
+			});
+
+		});
+
+	});
+
+	//   /usuario/1
+	//   /usuario/2
+	// === IMPRIMIR usuario.html
+	// ================= SOLUCION EJERCICIO ==================
+	app.get("/usuario/:usuarioId([0-9]+)", function(request, response) {
+
+		var usuarioId = request.params.usuarioId;
+
+		console.log("buscando usuario con id:" + usuarioId);
+
+		modelos.Usuario.find({
+			where : {
+				id : usuarioId
+			},
+			include : [{
+				model : modelos.Articulo,
+				as : "articulos"
+			}]
+		}).success(function(usuario) {
+			//CON LO ANTERIOR
+			//usuario.articulos TIENEN UN ARREGLO DE OBJETOS
+			// QUE SON LOS ARTICULOS ASOCIADOS A ESE USUARIO
+
+			response.render("usuario.html", {
+				usuario : usuario
+			});
+
+		});
+	});
+
+}; 

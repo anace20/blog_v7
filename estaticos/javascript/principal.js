@@ -1,4 +1,7 @@
 //io existe a partir de que importamos socket.io.js
+
+//OTRO CAMBIO SUPER IMPORTANTE
+
 var socket = io.connect("http://localhost:8081");
 
 socket.on("actualiza-contador",function(datosServidor){

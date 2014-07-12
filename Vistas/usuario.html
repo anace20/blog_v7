@@ -1,0 +1,21 @@
+{%extends "layout.html"%}
+
+{%block contenido%}
+
+   <!-- HACER QU ESTA SECCION FUNCIONE CON AJAX -->
+   
+   <article>
+   	   <h1>Nombre usuario:{{usuario.nombre}}</h1>
+   	   <h2>Email usuario:{{usuario.email}}</h2>
+   	   
+   </article>   
+      
+      <section>
+      	<h2>Articulos</h2>
+      	{%for articulo in usuario.articulos%}
+      		<h3>{{articulo.titulo}}</h3>
+       	{%endfor%}
+      </section>
+{%endblock%}
+
+

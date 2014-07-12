@@ -52,14 +52,16 @@ app.use(bodyParser());
 
 rutas.configurar(app);
 //SOLUCION EJERCICIO modulos
-modelos.configurar();
+modelos.configurar(function(){
+	//CUANDO YA ESTA LISTA LA CONEXION ,
+	//ENTONCES AHORA SI, ESCUCHO PETICIONES DE LOS USUARIOS
+	servidor.listen(8081);	
+});
 
 //HABILITA WEBSOCKETS EN EL SERVIDOR CON SOCKET.IO
 //io = me permite escuchar y responder a mis clientes usando 
 //websockets
 var io = socketio.listen(servidor);
-
-servidor.listen(8081);
 
 //CUANDO ALGUIEN PONGA http://localhost:8081/
 
@@ -70,6 +72,7 @@ var contadorUsuarios = 0;
 //TAREA:
 
 //-------------- INICIA CHAT---------------
+
 // connection me permite escuchar cuando un cliente se conecta
 // cuando un cliente se conecta, socket.io nos pasa un objeto
 //en la funcion que representa al cliente

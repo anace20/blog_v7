@@ -4,47 +4,41 @@
 		<meta charset="utf-8"/>
 		<title>JSONP ejemplo</title>
 		<script src="estaticos/javascript/lib/jquery.min.js"></script>
-		
+
 	</head>
 	<body>
 		<div id="imagenes">
-			
+
 		</div>
-		
 		<script>
-		
-			
-			//una forma es con $.getScript
-			//$.getScript("http://api.flickr.com/services/feeds/photos_public.gne?ids=61481595@N05&format=json&jsoncallback=MIFUNCION");
-			
-			//otra forma es  con json para evitar hacer funciones globales que en algun momento pueda chocar con alguna otra funcion
-			$.getJSON("http://api.flickr.com/services/feeds/photos_public.gne?ids=61481595@N05&format=json&jsoncallback=?",
-			//usa una funcion del dominio de google 
-		
-			function (datos){
-				//es itemspor que yo se que al ver la api esta  tienen esta proipiedad
-				var fotos = datos.items;
+			//LAS VARIABLES Y FUNCIONES GLOBALES SON INHERENTEMENT MALVADAS!!
+			//PARA NO TENER VARIABLES GLOBALES O FUNCIONES
+		    // UNA TECNICA MIUY UTIL ES USAR CLOSURES Y FUNCIONES AUTOEJECUTABLES
+
+			$.getJSON("http://api.flickr.com/services/feeds/photos_public.gne?ids=61481595@N05&format=json&jsoncallback=?", function(datos) {
 				
-				//sabemos al ver el api que el items es un arreglo del java script y por eso lo vamos a iterar usando los siguiente
-				fotos.forEach(function(foto){
-					var titulo= foto.title;
-					var urlImagen=foto.media.m;
-					
-					var caja="<div>"+
-									"<img src='"+urlImagen+"'>"+
-							"</div>"+
-							"<h2>"+
-									titulo+
-									"<p>"+foto.description+"</p>"+
-							"</h2>";
-							
-						$("#imagenes").append(caja);
-					
+				//por que pongo .items?
+				// por que YO SE QUE AL VER EL API JSON DE FLICKR
+				//QUE TIENE ESA PROPIEDAD
+				//SABEMOS AL VER EL API QUE items es UN ARREGLO DE JAVASCRIPT!!
+				var fotos = datos.items;
+
+				//PUEDEN ITERAR USANDO LO SIGUIENTE:
+				fotos.forEach(function(foto) {
+
+					var titulo = foto.title;
+					var urlImagen = foto.media.m;
+
+					//SOLUCION EJERCICIO!!
+					var caja = "<div>" + "<img src='" + urlImagen + "'>" + "<h2>" + titulo + "</h2>" + "<p>" + foto.description + "</p>" + "</div>";
+
+					$("#imagenes").append(caja);
+
 				});
+
 			});
+
 		</script>
-	
-		
 	</body>
 </html>
 
